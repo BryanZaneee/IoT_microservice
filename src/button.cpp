@@ -30,7 +30,9 @@ int main(int argc, char* argv[]) {
     gpioSetMode(BUTTON_1_PIN, PI_INPUT);
     gpioSetMode(BUTTON_2_PIN, PI_INPUT);
 
-    http_client client(U("http://" + utility::conversions::to_string_t(ipAddress) + U":8080"));
+    http_client client(utility::conversions::to_string_t(U("http://")) +
+                       utility::conversions::to_string_t(ipAddress) +
+                       utility::conversions::to_string_t(U(":8080")));
 
     while (true) {
         bool button1Pressed = gpioRead(BUTTON_1_PIN) == 1;

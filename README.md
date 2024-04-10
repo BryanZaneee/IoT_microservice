@@ -28,11 +28,14 @@ To run the code successfully, you'll need to install the following packages on y
 
 To compile and run the code, follow these steps:
 
-1. Navigate to the directory where the code files (`phys.cpp`, `edge.cpp`, and `ide.cpp`) are located.
+1. Navigate to the directory where the code files (`button.cpp`, `LED.cpp`, `edge.cpp`, and `ide.cpp`) are located.
 
 2. Compile the code files using the following commands:
     ```
-    g++ -o phys phys.cpp -lpigpio -lrt
+    g++ -o button button.cpp -lpigpio -lrt
+    ```
+     ```
+    g++ -o LED LED.cpp -lpigpio -lrt
     ```
     ```
     g++ -o edge edge.cpp -lpigpio -lrt
@@ -41,7 +44,7 @@ To compile and run the code, follow these steps:
     g++ -o ide ide.cpp -lpigpio -lrt
     ```
 
-    These commands will generate the executable files `phys`, `edge`, and `ide`. If you are receving a ` Can't lock /var/run/pigpio.pid Failed to initialize pigpio ` then run these commands: 
+    These commands will generate the executable files `button`, `LED`, `edge`, and `ide`. If you are receving a ` Can't lock /var/run/pigpio.pid Failed to initialize pigpio ` then run these commands: 
     ```
     sudo killall pigpiod
     ```
@@ -56,42 +59,52 @@ To compile and run the code, follow these steps:
 
 4. Open three separate terminal windows or tabs.
 
-5. In the first terminal, run the `phys` executable:
+5. In the first terminal on RPi-1, run the `button` executable:
    ``` 
-   ./phys <port>
+   ./button <ip>
    ```
-    This will start the physical layer code that interacts with the buttons and LEDs.
+   In the other terminal on RPi-2, run the `LED` executable:
+   ``` 
+   ./LED <ip>
+   ```
+    
 
 6. In the second terminal, run the `edge` executable:
     ```
-    ./edge <port>
+    ./edge <ip>
     ```
     This will start the edge layer code that reports services and displays service information on the dashboard.
 
 7. In the third terminal, run the `ide` executable:
     ```
-    ./ide <port>
+    ./ide <ip>
     ```
     This will start the IDE code that allows you to compose and execute IoT applications us
 
 ## Code Overview
 The code consists of three main files that work together to create an IoT application:
 
-1. `phys.cpp`:
-- This file represents the physical layer of the IoT application.
-- It interacts with the buttons and LEDs connected to the Raspberry Pi.
-- It reads the button states and controls the LEDs based on the button presses.
+1. `button.cpp`:
+- This file represents the button monitoring service.
+- It interacts with the buttons connected to the Raspberry Pi.
+- It reads the button states and sends HTTP requests to the LED control service when buttons are pressed.
 
-2. `edge.cpp`:
+2. `LED.cpp`:
+- This file represents the LED control service.
+- It listens for HTTP requests to control the LEDs connected to the Raspberry Pi.
+- It updates the LED states based on the received requests.
+
+3. `edge.cpp`:
 - This file represents the edge layer of the IoT application.
 - It defines and reports the available services to the IDE.
 - It displays the service information on the dashboard.
 
-3. `ide.cpp`:
+4. `ide.cpp`:
 - This file represents the IDE (Integrated Development Environment) for composing and executing IoT applications.
 - It allows the user to compose an application by selecting services from the available services reported by the edge layer.
 - It executes the composed application by invoking the corresponding services.
-- It interacts with the physical layer to control the LEDs based on the button presses.
+- It interacts with the LED control service to control the LEDs based on user input.
+
 
 The code files are connected through the use of common service names and the execution of services in the IDE. The edge layer reports the available services, and the IDE uses these services to compose and execute IoT applications. The physical layer provides the low-level functionality for interacting with the buttons and LEDs.
 
