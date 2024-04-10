@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cstdlib>
 #include <pigpio.h>
 
-// Service structure
 struct Service {
     std::string rpiId;
     std::string serviceName;
@@ -11,9 +11,8 @@ struct Service {
     std::vector<std::string> inputParamNames;
 };
 
-std::vector<Service> services;  // Vector to store services
+std::vector<Service> services;
 
-// Function to report a service
 void reportService(const std::string& rpiId, const std::string& serviceName,
                    int numInputParams, const std::vector<std::string>& inputParamNames) {
     Service service;
@@ -24,7 +23,6 @@ void reportService(const std::string& rpiId, const std::string& serviceName,
     services.push_back(service);
 }
 
-// Function to display service information
 void displayServiceInfo() {
     std::cout << "Available Services:" << std::endl;
     for (const auto& service : services) {
@@ -39,9 +37,15 @@ void displayServiceInfo() {
     }
 }
 
-int main() {
-    // Initialize pigpio
-    if (gpioInitialise() < 0) {
+int main(int argc, char* argv[]) {
+    int port = 8888;  // Default port number
+
+    if (argc > 1) {
+        port = std::atoi(argv[1]);  // Get port number from command-line argument
+    }
+
+    // Initialize pigpio with the specified port number
+    if (gpioInitialise_ex("localhost", port) < 0) {
         std::cout << "Failed to initialize pigpio" << std::endl;
         return 1;
     }
@@ -50,8 +54,11 @@ int main() {
     reportService("RPi-1", "ReadTemperature", 1, {"F_or_C"});
     reportService("RPi-2", "ControlLED", 2, {"LEDNumber", "OnOff"});
 
-    displayServiceInfo();  // Display service information on the dashboard
+    // Display service information on the dashboard
+    displayServiceInfo();
 
-    gpioTerminate();  // Terminate pigpio
+    // Terminate pigpio
+    gpioTerminate();
+
     return 0;
 }

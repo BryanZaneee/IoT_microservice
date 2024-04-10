@@ -41,7 +41,13 @@ To compile and run the code, follow these steps:
     g++ -o ide ide.cpp -lpigpio -lrt
     ```
 
-    These commands will generate the executable files `phys`, `edge`, and `ide`.
+    These commands will generate the executable files `phys`, `edge`, and `ide`. If you are receving a ` Can't lock /var/run/pigpio.pid Failed to initialize pigpio ` then run these commands: 
+    ```
+    sudo killall pigpiod
+    ```
+    ```
+    sudo rm /var/run/pigpio.pid
+    ```
 
 3. Start the pigpiod daemon by running the command:
     ```
@@ -52,19 +58,19 @@ To compile and run the code, follow these steps:
 
 5. In the first terminal, run the `phys` executable:
    ``` 
-   ./phys
+   ./phys <port>
    ```
     This will start the physical layer code that interacts with the buttons and LEDs.
 
 6. In the second terminal, run the `edge` executable:
     ```
-    ./edge
+    ./edge <port>
     ```
     This will start the edge layer code that reports services and displays service information on the dashboard.
 
 7. In the third terminal, run the `ide` executable:
     ```
-    ./ide
+    ./ide <port>
     ```
     This will start the IDE code that allows you to compose and execute IoT applications us
 
