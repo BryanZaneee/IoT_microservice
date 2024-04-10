@@ -42,8 +42,10 @@ void displayServiceInfo() {
 }
 
 void sendButtonPress(int buttonNumber, const std::string& ipAddress) {
-    http_client client(U("http://" + utility::conversions::to_string_t(ipAddress) + U":8080"));
-    uri_builder builder(U("/button"));
+    http_client client(utility::conversions::to_string_t(U("http://")) +
+                       utility::conversions::to_string_t(ipAddress) +
+                       utility::conversions::to_string_t(U(":8080")));
+    uri_builder builder(utility::conversions::to_string_t(U("/button")));
     builder.append_query(U("number"), buttonNumber);
 
     http_request request(methods::POST);

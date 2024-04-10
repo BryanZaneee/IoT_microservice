@@ -32,16 +32,16 @@ To compile and run the code, follow these steps:
 
 2. Compile the code files using the following commands:
     ```
-    g++ -o button button.cpp -lpigpio -lrt
+    g++ -o button button.cpp -lpigpio -lrt -lcpprest -lssl -lcrypto
     ```
      ```
-    g++ -o LED LED.cpp -lpigpio -lrt
+    g++ -o LED LED.cpp -lpigpio -lrt -lcpprest -lssl -lcrypto
     ```
     ```
-    g++ -o edge edge.cpp -lpigpio -lrt
+    g++ -o edge edge.cpp -lpigpio -lrt -lcpprest -lssl -lcrypto
     ```
     ```
-    g++ -o ide ide.cpp -lpigpio -lrt
+    g++ -o ide ide.cpp -lpigpio -lrt -lcpprest -lssl -lcrypto
     ```
 
     These commands will generate the executable files `button`, `LED`, `edge`, and `ide`. If you are receving a ` Can't lock /var/run/pigpio.pid Failed to initialize pigpio ` then run these commands: 
@@ -106,6 +106,6 @@ The code consists of three main files that work together to create an IoT applic
 - It interacts with the LED control service to control the LEDs based on user input.
 
 
-The code files are connected through the use of common service names and the execution of services in the IDE. The edge layer reports the available services, and the IDE uses these services to compose and execute IoT applications. The physical layer provides the low-level functionality for interacting with the buttons and LEDs.
+The code files are connected through the use of HTTP requests and responses. The `button.cpp` service sends HTTP requests to the `LED.cpp` service when buttons are pressed. The `edge.cpp` layer reports the available services, and the `ide.cpp` code uses these services to compose and execute IoT applications by sending HTTP requests to the corresponding services.
 
-When you run the code, the physical layer (`phys`) continuously reads the button states and controls the LEDs accordingly. The edge layer (`edge`) reports the available services and displays them on the dashboard (in this case, the command line is the dashboard). The IDE (`ide`) allows you to compose an application by selecting services and executes the application by invoking the corresponding services, which in turn interact with the physical layer.
+When you run the code, the `LED.cpp` service listens for requests to control the LEDs. The `button.cpp` service continuously reads the button states and sends requests to the `LED.cpp` service when buttons are pressed. The `edge.cpp` layer reports the available services and displays them on the dashboard (in this case, the command line is the dashboard). The `ide.cpp` code allows you to compose an application by selecting services and executes the application by sending requests to the corresponding services, which in turn interact with the `LED.cpp` service to control the LEDs.

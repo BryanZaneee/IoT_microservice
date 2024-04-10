@@ -48,8 +48,10 @@ void executeService(const Service& service, const std::string& ipAddress) {
         std::cout << "Enter LED state (1 for on, 0 for off): ";
         std::cin >> onOff;
 
-        http_client client(U("http://" + utility::conversions::to_string_t(ipAddress) + U":8080"));
-        uri_builder builder(U("/led"));
+        http_client client(utility::conversions::to_string_t(U("http://")) +
+                           utility::conversions::to_string_t(ipAddress) +
+                           utility::conversions::to_string_t(U(":8080")));
+        uri_builder builder(utility::conversions::to_string_t(U("/led")));
         builder.append_query(U("number"), ledNumber);
         builder.append_query(U("state"), onOff);
 
@@ -116,6 +118,7 @@ int main(int argc, char* argv[]) {
     registerService("RPi-2", "ControlLED", 2, {"LEDNumber", "OnOff"});
 
     std::string input;
+    std::vector<std::string> application;
 
     while (true) {
         displayServices();
@@ -126,7 +129,7 @@ int main(int argc, char* argv[]) {
         if (input == "quit") {
             break;
         } else if (input == "compose") {
-            composeApplication();
+            composeApplication(application);
 
             std::cout << "\nExecuting the application..." << std::endl;
 

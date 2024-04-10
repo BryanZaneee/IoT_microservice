@@ -44,8 +44,10 @@ int main(int argc, char* argv[]) {
     gpioSetMode(LED_1_PIN, PI_OUTPUT);
     gpioSetMode(LED_2_PIN, PI_OUTPUT);
 
-    http_listener listener(U("http://" + utility::conversions::to_string_t(ipAddress) + U":8080"));
-    listener.support(methods::POST, U("/led"), handleLEDControl);
+    http_listener listener(utility::conversions::to_string_t(U("http://")) +
+                           utility::conversions::to_string_t(ipAddress) +
+                           utility::conversions::to_string_t(U(":8080")));
+    listener.support(methods::POST, utility::conversions::to_string_t(U("/led")), handleLEDControl);
 
     try {
         listener.open().wait();
