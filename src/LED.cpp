@@ -47,7 +47,8 @@ int main(int argc, char* argv[]) {
     http_listener listener(utility::conversions::to_string_t(U("http://")) +
                            utility::conversions::to_string_t(ipAddress) +
                            utility::conversions::to_string_t(U(":8080")));
-    listener.support(methods::POST, utility::conversions::to_string_t(U("/led")), handleLEDControl);
+    listener.support(methods::POST, utility::conversions::to_string_t(U("/led")),
+                     std::function<void(http_request)>(handleLEDControl));
 
     try {
         listener.open().wait();

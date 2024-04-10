@@ -68,8 +68,7 @@ void executeService(const Service& service, const std::string& ipAddress) {
     }
 }
 
-void composeApplication() {
-    std::vector<std::string> application;
+void composeApplication(std::vector<std::string>& application) {
     std::string input;
 
     std::cout << "Compose your IoT application by entering service names (or 'done' to finish):" << std::endl;
