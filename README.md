@@ -31,27 +31,41 @@ To compile and run the code, follow these steps:
 1. Navigate to the directory where the code files (`phys.cpp`, `edge.cpp`, and `ide.cpp`) are located.
 
 2. Compile the code files using the following commands:
+    ```
     g++ -o phys phys.cpp -lpigpio -lrt
+    ```
+    ```
     g++ -o edge edge.cpp -lpigpio -lrt
+    ```
+    ```
     g++ -o ide ide.cpp -lpigpio -lrt
+    ```
 
     These commands will generate the executable files `phys`, `edge`, and `ide`.
 
 3. Start the pigpiod daemon by running the command:
+    ```
     sudo pigpiod
+    ```
 
 4. Open three separate terminal windows or tabs.
 
 5. In the first terminal, run the `phys` executable:
-    ./phys
+   ``` 
+   ./phys
+   ```
     This will start the physical layer code that interacts with the buttons and LEDs.
 
 6. In the second terminal, run the `edge` executable:
+    ```
     ./edge
+    ```
     This will start the edge layer code that reports services and displays service information on the dashboard.
 
 7. In the third terminal, run the `ide` executable:
+    ```
     ./ide
+    ```
     This will start the IDE code that allows you to compose and execute IoT applications us
 
 ## Code Overview
