@@ -11,18 +11,25 @@ using namespace web::http::experimental::listener;
 const int LED_1_PIN = 2;
 const int LED_2_PIN = 3;
 
+// Handle control requests for LEDs
 void handleLEDControl(http_request request) {
-    auto query = uri::split_query(request.request_uri().query());
-    int ledNumber = std::stoi(query["number"]);
-    bool onOff = query["state"] == "1";
+    // Check if the path is for LED control
+    auto path = request.relative_uri().path();
+    if (path == U("/led")) {
+        auto query = uri::split_query(request.request_uri().query());
+        int ledNumber = std::stoi(query["number"]);
+        bool onOff = query["state"] == "1";
 
-    if (ledNumber == 1) {
-        gpioWrite(LED_1_PIN, onOff ? 1 : 0);
-    } else if (ledNumber == 2) {
-        gpioWrite(LED_2_PIN, onOff ? 1 : 0);
+        if (ledNumber == 1) {
+            gpioWrite(LED_1_PIN, onOff ? 1 : 0);
+        } else if (ledNumber == 2) {
+            gpioWrite(LED_2_PIN, onOff ? 1 : 0);
+        }
+
+        request.reply(status_codes::OK);
+    } else {
+        request.reply(status_codes::NotFound);
     }
-
-    request.reply(status_codes::OK);
 }
 
 int main(int argc, char* argv[]) {
@@ -44,12 +51,9 @@ int main(int argc, char* argv[]) {
     gpioSetMode(LED_1_PIN, PI_OUTPUT);
     gpioSetMode(LED_2_PIN, PI_OUTPUT);
 
-    http_listener listener(utility::conversions::to_string_t(U("http://")) +
-                           utility::conversions::to_string_t(ipAddress) +
-                           utility::conversions::to_string_t(U(":8080")));
+    http_listener listener(utility::conversions::to_string_t("http://") + utility::conversions::to_string_t(ipAddress) + utility::conversions::to_string_t(":8080"));
 
-    listener.support(methods::POST, utility::conversions::to_string_t(U("/led")),
-                     [](http_request request) { handleLEDControl(request); });
+    listener.support(methods::POST, handleLEDControl);
 
     try {
         listener.open().wait();
