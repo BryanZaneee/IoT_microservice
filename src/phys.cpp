@@ -1,39 +1,58 @@
 #include <iostream>
-#include <wiringPi.h>
+#include <pigpio.h>
 
-// GPIO pin numbers using WiringPi's numbering scheme
-const int ledPin = 0;  // LED connected to GPIO pin 0 (WiringPi pin number)
-const int lightSensorPin = 1;  // Light sensor connected to GPIO pin 1 (WiringPi pin number)
+// Button and LED pin constants
+const int BUTTON_1_PIN = 0;
+const int BUTTON_2_PIN = 1;
+const int LED_1_PIN = 2;
+const int LED_2_PIN = 3;
 
-void setup() {
-    wiringPiSetup();  // Initialize WiringPi
-    pinMode(ledPin, OUTPUT);  // Set the LED pin to output mode
-    pinMode(lightSensorPin, INPUT);  // Set the light sensor pin to input mode
-    digitalWrite(ledPin, LOW); // Ensure LED is off initially
-    std::cout << "System Initialized.\n";
+// Button state variables
+bool button1Pressed = false;
+bool button2Pressed = false;
+
+// Function to read button states
+void readButtons() {
+    button1Pressed = gpioRead(BUTTON_1_PIN) == HIGH;
+    button2Pressed = gpioRead(BUTTON_2_PIN) == HIGH;
 }
 
-void loop() {
-    // Read the light sensor value
-    int lightLevel = digitalRead(lightSensorPin);
-
-    // If the sensor detects low light, turn on the LED
-    if (lightLevel == LOW) {
-        digitalWrite(ledPin, HIGH);  // Low light detected, turn on the LED
-        std::cout << "Low light detected - LED on.\n";
-    } else {
-        digitalWrite(ledPin, LOW);   // Adequate light detected, turn off the LED
-        std::cout << "Adequate light - LED off.\n";
-    }
-
-    delay(1000);  // Wait for a second before the next reading
+// Function to set LED states
+void setLEDs(bool led1On, bool led2On) {
+    gpioWrite(LED_1_PIN, led1On ? HIGH : LOW);
+    gpioWrite(LED_2_PIN, led2On ? HIGH : LOW);
 }
 
 int main() {
-    setup();
-    while (true) {
-        loop();
+    // Initialize pigpio
+    if (gpioInitialise() < 0) {
+        std::cout << "Failed to initialize pigpio" << std::endl;
+        return 1;
     }
 
+    // Set button pins as inputs and LED pins as outputs
+    gpioSetMode(BUTTON_1_PIN, PI_INPUT);
+    gpioSetMode(BUTTON_2_PIN, PI_INPUT);
+    gpioSetMode(LED_1_PIN, PI_OUTPUT);
+    gpioSetMode(LED_2_PIN, PI_OUTPUT);
+
+    while (true) {
+        readButtons();  // Read button states
+
+        // Perform actions based on button states
+        if (button1Pressed) {
+            setLEDs(true, false);  // Turn on LED 1
+            std::cout << "Button 1 pressed" << std::endl;
+        } else if (button2Pressed) {
+            setLEDs(false, true);  // Turn on LED 2
+            std::cout << "Button 2 pressed" << std::endl;
+        } else {
+            setLEDs(false, false);  // Turn off both LEDs
+        }
+
+        gpioDelay(100000);  // Delay to debounce buttons
+    }
+
+    gpioTerminate();  // Terminate pigpio
     return 0;
 }

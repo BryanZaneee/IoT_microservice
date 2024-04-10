@@ -1,40 +1,57 @@
-#include "lighting_system.h"
-#include <httplib.h>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <pigpio.h>
 
-class RestServer {
-private:
-    LightingSystem* system;
-    httplib::Server server;
-
-public:
-    void setup(LightingSystem* systemInstance) {
-        this->system = systemInstance;
-
-        // Endpoint to get the current light level and LED status
-        server.Get("/status", [this](const httplib::Request&, httplib::Response& res) {
-            auto status = this->system->getStatus();
-            res.set_content(status, "application/json");
-        });
-
-        // Endpoint to update LED state
-        server.Post("/led", [this](const httplib::Request& req, httplib::Response& res) {
-            bool newState = req.body == "on";
-            this->system->setLedState(newState);
-            res.set_content("LED state updated", "text/plain");
-        });
-    }
-
-    void run() {
-        server.listen("localhost", 8080);
-    }
+// Service structure
+struct Service {
+    std::string rpiId;
+    std::string serviceName;
+    int numInputParams;
+    std::vector<std::string> inputParamNames;
 };
 
+std::vector<Service> services;  // Vector to store services
+
+// Function to report a service
+void reportService(const std::string& rpiId, const std::string& serviceName,
+                   int numInputParams, const std::vector<std::string>& inputParamNames) {
+    Service service;
+    service.rpiId = rpiId;
+    service.serviceName = serviceName;
+    service.numInputParams = numInputParams;
+    service.inputParamNames = inputParamNames;
+    services.push_back(service);
+}
+
+// Function to display service information
+void displayServiceInfo() {
+    std::cout << "Available Services:" << std::endl;
+    for (const auto& service : services) {
+        std::cout << "RPi ID: " << service.rpiId << std::endl;
+        std::cout << "Service Name: " << service.serviceName << std::endl;
+        std::cout << "Number of Input Parameters: " << service.numInputParams << std::endl;
+        std::cout << "Input Parameter Names: ";
+        for (const auto& paramName : service.inputParamNames) {
+            std::cout << paramName << " ";
+        }
+        std::cout << std::endl << std::endl;
+    }
+}
+
 int main() {
-    LightingSystem system;  // Instance of your LightingSystem, presumably interfacing with phys.cpp
-    RestServer server;      // Create a server instance
+    // Initialize pigpio
+    if (gpioInitialise() < 0) {
+        std::cout << "Failed to initialize pigpio" << std::endl;
+        return 1;
+    }
 
-    server.setup(&system);  // Setup server with your system
-    server.run();           // Start the server
+    // Report services
+    reportService("RPi-1", "ReadTemperature", 1, {"F_or_C"});
+    reportService("RPi-2", "ControlLED", 2, {"LEDNumber", "OnOff"});
 
+    displayServiceInfo();  // Display service information on the dashboard
+
+    gpioTerminate();  // Terminate pigpio
     return 0;
 }
