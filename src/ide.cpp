@@ -35,7 +35,7 @@ void displayServices() {
     }
 }
 
-void executeService(const Service& service) {
+void executeService(const Service& service, const std::string& ipAddress) {
     std::cout << "Executing service: " << service.serviceName << std::endl;
 
     if (service.serviceName == "ControlLED") {
@@ -48,7 +48,7 @@ void executeService(const Service& service) {
         std::cout << "Enter LED state (1 for on, 0 for off): ";
         std::cin >> onOff;
 
-        http_client client(U("http://192.168.0.104:8080"));
+        http_client client(U("http://" + utility::conversions::to_string_t(ipAddress) + U":8080"));
         uri_builder builder(U("/led"));
         builder.append_query(U("number"), ledNumber);
         builder.append_query(U("state"), onOff);
@@ -100,22 +100,17 @@ void composeApplication() {
         std::cout << service << " ";
     }
     std::cout << std::endl;
-
-    std::cout << "\nExecuting the application..." << std::endl;
-
-    for (const auto& serviceName : application) {
-        for (const auto& service : services) {
-            if (service.serviceName == serviceName) {
-                executeService(service);
-                break;
-            }
-        }
-    }
-
-    std::cout << "\nApplication execution completed." << std::endl;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    // Check if IP address is provided
+    if (argc < 2) {
+        std::cout << "Usage: " << argv[0] << " <ip_address>" << std::endl;
+        return 1;
+    }
+
+    std::string ipAddress(argv[1]);
+
     // Register services
     registerService("RPi-1", "ButtonPress", 1, {"ButtonNumber"});
     registerService("RPi-2", "ControlLED", 2, {"LEDNumber", "OnOff"});
@@ -132,6 +127,19 @@ int main() {
             break;
         } else if (input == "compose") {
             composeApplication();
+
+            std::cout << "\nExecuting the application..." << std::endl;
+
+            for (const auto& serviceName : application) {
+                for (const auto& service : services) {
+                    if (service.serviceName == serviceName) {
+                        executeService(service, ipAddress);
+                        break;
+                    }
+                }
+            }
+
+            std::cout << "\nApplication execution completed." << std::endl;
         } else {
             std::cout << "Invalid command!" << std::endl;
         }

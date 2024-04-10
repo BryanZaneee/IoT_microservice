@@ -41,8 +41,8 @@ void displayServiceInfo() {
     }
 }
 
-void sendButtonPress(int buttonNumber) {
-    http_client client(U("http://192.168.0.104:8080"));
+void sendButtonPress(int buttonNumber, const std::string& ipAddress) {
+    http_client client(U("http://" + utility::conversions::to_string_t(ipAddress) + U":8080"));
     uri_builder builder(U("/button"));
     builder.append_query(U("number"), buttonNumber);
 
@@ -58,7 +58,15 @@ void sendButtonPress(int buttonNumber) {
     });
 }
 
-int main() {
+int main(int argc, char* argv[]) {
+    // Check if IP address is provided
+    if (argc < 2) {
+        std::cout << "Usage: " << argv[0] << " <ip_address>" << std::endl;
+        return 1;
+    }
+
+    std::string ipAddress(argv[1]);
+
     // Report services
     reportService("RPi-1", "ButtonPress", 1, {"ButtonNumber"});
     reportService("RPi-2", "ControlLED", 2, {"LEDNumber", "OnOff"});
@@ -67,7 +75,7 @@ int main() {
     displayServiceInfo();
 
     // Example usage: send button press to RPi-2
-    sendButtonPress(1);
+    sendButtonPress(1, ipAddress);
 
     return 0;
 }
